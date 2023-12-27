@@ -2,10 +2,16 @@ from django.shortcuts import render,redirect
 from django.contrib.auth.models import User,auth
 from django.contrib import messages
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 from .models import Profile
 
+@login_required(login_url='signin')
 def index(request):
     return render(request,'index.html')
+
+@login_required(login_url='signin')
+def settings(request):
+    return render(request,'setting.html')
 
 def signup(request):
     if request.method=='POST':
@@ -40,7 +46,7 @@ def signin(request):
 
         user = auth.authenticate(username=username, password=password)
         if user is not None:
-            auth.login(request.user)  # <-- Incorrect argument here
+            auth.login(request, user)  # <-- Incorrect argument here
             return redirect('/')
         else:
             messages.info(request, "Credentials invalid")
@@ -48,6 +54,10 @@ def signin(request):
     else:
         return render(request, 'signin.html')
 
+@login_required(login_url='signin')
+def logout(request):
+    auth.logout(request)
+    return redirect('signin')
 
 
     
